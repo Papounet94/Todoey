@@ -23,9 +23,6 @@ class TodoListViewController: UITableViewController {
         loadItems()
         
         // Do any additional setup after loading the view.
-//        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] {
-//            itemArray = items
-//        }
     }
 
     //MARK: - TableView Datasource Methods
@@ -89,7 +86,7 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems() {
+    func loadItems(with request : NSFetchRequest<Item> = Item.fetchRequest()) {
         
         let request : NSFetchRequest<Item> = Item.fetchRequest()
         do {
@@ -99,5 +96,20 @@ class TodoListViewController: UITableViewController {
             print("Error fetching data from context \(error)")
         }
     }
+    
 }
 
+//MARK: - Delegate method for Search Bar
+
+extension TodoListViewController : UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request)
+    }
+}
